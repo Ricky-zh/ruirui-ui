@@ -80,5 +80,33 @@ module.exports = [
         data: 'success'
       }
     }
+  },
+  // 获取数据库中的路由
+  {
+    url: '/vue-element-admin/user/getRouters',
+    type: 'get',
+    response: _ => {
+      return {
+        code: 20000,
+        data: [{
+          path: '/bigScreen',
+          component: Layout,
+          redirect: 'noRedirect',
+          name: 'Screen',
+          meta: {
+            title: '大屏展示',
+            icon: 'chart'
+          },
+          children: [
+            {
+              path: 'dashboard',
+              component: () => import('@/views/bigScreen/index'),
+              name: 'BigScreen',
+              meta: { title: '大屏', noCache: true }
+            }
+          ]
+        }]
+      }
+    }
   }
 ]
