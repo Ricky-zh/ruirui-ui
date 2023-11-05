@@ -1,4 +1,6 @@
 import { asyncRoutes, constantRoutes } from '@/router'
+import { getRouters } from '@/api/menu'
+import Layout from '@/layout/index'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -46,19 +48,50 @@ const mutations = {
   }
 }
 
+// 遍历后台传来的路由字符串，转换为组件对象
+function filterAsyncRouter(asyncRouterMap, hasParent = false) {
+  return asyncRouterMap.filter(route => {
+    if (route.component) {
+      // Layout组件特殊处理
+      if (!hasParent && route.component === 'Layout') {
+        route.component = Layout
+      } else if (route.component !== 'Layout') {
+        route.component = loadView(route.component)
+      } else {
+        route.component = {
+          render(c) {
+            return c('router-view')
+          }
+        }
+      }
+    }
+    if (route.children != null && route.children && route.children.length) {
+      route.children = filterAsyncRouter(route.children, true)
+    }
+    return true
+  })
+}
+
 const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
-      } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-      }
-      commit('SET_ROUTES', accessedRoutes)
-      resolve(accessedRoutes)
+      getRouters().then(response => {
+        let accessedRoutes
+        if (roles.includes('admin')) {
+          accessedRoutes = asyncRoutes || []
+        } else {
+          accessedRoutes = filterAsyncRoutes([...asyncRoutes, ...filterAsyncRouter(response.data)], roles)
+        }
+        commit('SET_ROUTES', accessedRoutes)
+        resolve(accessedRoutes)
+      })
     })
   }
+}
+
+export const loadView = view => {
+  // 路由懒加载
+  return resolve => require([`@/views/${view}`], resolve)
 }
 
 export default {

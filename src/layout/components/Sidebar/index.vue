@@ -26,9 +26,6 @@ import variables from '@/styles/variables.scss'
 
 export default {
   components: { SidebarItem, Logo },
-  created() {
-    console.info('permission_routes', this.permission_routes)
-  },
   computed: {
     ...mapGetters([
       'permission_routes',

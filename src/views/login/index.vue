@@ -3,7 +3,6 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
              label-position="left"
     >
-
       <div class="title-container">
         <h3 class="title">登录</h3>
       </div>
@@ -43,11 +42,17 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
-                 @click.native.prevent="handleLogin"
-      >Login
-      </el-button>
-
+      <div style="display: flex;justify-content: space-around">
+        <el-button
+          :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
+          @click.native.prevent="handleLogin"
+        >登录
+        </el-button>
+        <el-button type="default" style="width:100%;margin-bottom:30px;"
+                   @click.native.prevent="handleRegister"
+        >注册
+        </el-button>
+      </div>
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
         <span> password: any</span>
@@ -56,24 +61,34 @@
       <div class="icp-filing">
         <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2022041540号-1</a>
       </div>
-
     </el-form>
+
+    <el-dialog
+      title="用户注册"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose"
+      custom-class="login-container"
+    >
+      <register-user ref="registerUser" />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="confirmDialog">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import RegisterUser from './components/registerUser'
+import { register } from '@/api/user'
 
 export default {
   name: 'Login',
+  components: {
+    RegisterUser
+  },
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('The password can not be less than 6 digits'))
@@ -82,12 +97,12 @@ export default {
       }
     }
     return {
+      dialogVisible: false,
       loginForm: {
-        username: 'admin',
+        username: 'zradmin',
         password: '111111'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,
@@ -104,6 +119,16 @@ export default {
     }
   },
   methods: {
+    handleClose() {
+      this.dialogVisible = false
+    },
+    confirmDialog() {
+      const formData = this.$refs.registerUser.formData
+      register(formData).then(response => {
+        this.$message.success(response)
+        this.handleClose()
+      })
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -113,6 +138,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.password.focus()
       })
+    },
+    handleRegister() {
+      this.dialogVisible = true
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {

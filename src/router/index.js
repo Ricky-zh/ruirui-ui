@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 /* Layout */
 import Layout from '@/layout'
-import chartsRouter from './modules/charts'
 
 Vue.use(Router)
 
@@ -129,9 +128,6 @@ export const asyncRoutes = [
       }
     ]
   },
-  /** when your routing map is too long, you can split it into small modules **/
-  chartsRouter,
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
