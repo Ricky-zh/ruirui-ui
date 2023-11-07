@@ -1,37 +1,25 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">New Role</el-button>
+    <el-button type="primary" @click="handleAddRole">新建</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="Role Key" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.key }}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="Role Name" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.name }}
-        </template>
-      </el-table-column>
-      <el-table-column align="header-center" label="Description">
-        <template slot-scope="scope">
-          {{ scope.row.description }}
-        </template>
-      </el-table-column>
+      <el-table-column align="center" label="角色" prop="roleKey"/>
+      <el-table-column align="center" label="角色名称" prop="roleName"/>
+      <el-table-column align="header-center" label="状态" prop="status"/>
       <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+          <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">
-      <el-form :model="role" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="role.name" placeholder="Role Name" />
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑':'新建'">
+      <el-form :model="role" label-width="80px" label-position="right">
+        <el-form-item label="角色名称">
+          <el-input v-model="role.name" placeholder="角色名称"/>
         </el-form-item>
-        <el-form-item label="Desc">
+        <el-form-item label="描述">
           <el-input
             v-model="role.description"
             :autosize="{ minRows: 2, maxRows: 4}"
@@ -39,7 +27,7 @@
             placeholder="Role Description"
           />
         </el-form-item>
-        <el-form-item label="Menus">
+        <el-form-item label="菜单权限">
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
@@ -52,8 +40,8 @@
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
-        <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmRole">Confirm</el-button>
+        <el-button type="danger" @click="dialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="confirmRole">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -62,7 +50,8 @@
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
+import { addRole, deleteRole, getRoles, updateRole } from '@/api/role'
+import { getRouters } from '@/api/menu'
 
 const defaultRole = {
   key: '',
@@ -98,12 +87,13 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const res = await getRoutes()
+      const res = await getRouters()
       this.serviceRoutes = res.data
       this.routes = this.generateRoutes(res.data)
     },
     async getRoles() {
       const res = await getRoles()
+      console.info(res, 111)
       this.rolesList = res.data
     },
 
@@ -113,7 +103,9 @@ export default {
 
       for (let route of routes) {
         // skip some route
-        if (route.hidden) { continue }
+        if (route.hidden) {
+          continue
+        }
 
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
 
@@ -182,7 +174,9 @@ export default {
             message: 'Delete succed!'
           })
         })
-        .catch(err => { console.error(err) })
+        .catch(err => {
+          console.error(err)
+        })
     },
     generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
@@ -248,7 +242,7 @@ export default {
 
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
-        onlyOneChild = { ... parent, path: '', noShowingChildren: true }
+        onlyOneChild = { ...parent, path: '', noShowingChildren: true }
         return onlyOneChild
       }
 
@@ -263,6 +257,7 @@ export default {
   .roles-table {
     margin-top: 30px;
   }
+
   .permission-tree {
     margin-bottom: 30px;
   }

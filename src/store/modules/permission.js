@@ -78,9 +78,9 @@ const actions = {
       getRouters().then(response => {
         let accessedRoutes
         if (roles.includes('admin')) {
-          accessedRoutes = asyncRoutes || []
+          accessedRoutes = [...filterAsyncRouter(response.data), ...asyncRoutes]
         } else {
-          accessedRoutes = filterAsyncRoutes([...asyncRoutes, ...filterAsyncRouter(response.data)], roles)
+          accessedRoutes = filterAsyncRoutes([...filterAsyncRouter(response.data), ...asyncRoutes], roles)
         }
         commit('SET_ROUTES', accessedRoutes)
         resolve(accessedRoutes)
