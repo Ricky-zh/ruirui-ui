@@ -79,6 +79,19 @@ export const constantRoutes = [
         meta: { title: '列表', icon: 'table' }
       }
     ]
+  },
+  {
+    path: '/personalCenter',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'PersonalCenter',
+        component: () => import('@/views/system/profile/index'),
+        meta: { title: '用户中心', icon: 'table' }
+      }
+    ]
   }
 ]
 

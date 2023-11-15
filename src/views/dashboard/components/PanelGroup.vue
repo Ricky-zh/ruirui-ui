@@ -64,7 +64,6 @@ export default {
   },
   methods: {
     handleSetLineChartData(type) {
-      console.info('首页卡片点击事件', type)
       this.$emit('handleSetLineChartData', type)
     }
   }

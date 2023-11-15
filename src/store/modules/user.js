@@ -4,9 +4,13 @@ import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '',
-  avatar: '',
-  introduction: '',
+  user: {
+    nickName: '',
+    avatar: '',
+    userName: '',
+    userId: '',
+    tenantId: ''
+  },
   roles: []
 }
 
@@ -14,14 +18,8 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
-  SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
-  },
-  SET_NAME: (state, name) => {
-    state.name = name
-  },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  SET_USER: (state, user) => {
+    state.user = user
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -55,17 +53,13 @@ const actions = {
         }
 
         const { user, roles, permissions } = data
-        user.userName = undefined
-        user.nickName = undefined
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject('用户未配置角色!')
         }
         commit('SET_ROLES', roles)
-        commit('SET_NAME', user.nickName)
-        commit('SET_AVATAR', user.avatar)
-        commit('SET_INTRODUCTION', user.userName)
+        commit('SET_USER', user)
         resolve(data)
       }).catch(error => {
         reject(error)

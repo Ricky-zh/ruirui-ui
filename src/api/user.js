@@ -29,3 +29,20 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function updateUserProfile(data) {
+  return request({
+    url: '/user/updateUserProfile',
+    method: 'post',
+    data
+  })
+}
+
+export function updateUserPwd(data) {
+  return request({
+    url: '/user/updateUserPwd',
+    method: 'post',
+    data
+  })
+}
+

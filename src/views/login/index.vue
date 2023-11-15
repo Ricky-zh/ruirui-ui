@@ -53,10 +53,6 @@
         >注册
         </el-button>
       </div>
-      <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
-      </div>
 
       <div class="icp-filing">
         <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2022041540号-1</a>
@@ -66,22 +62,19 @@
     <el-dialog
       title="用户注册"
       :visible.sync="dialogVisible"
-      width="30%"
+      width="25%"
       :before-close="handleClose"
       custom-class="login-container"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
-      <register-user ref="registerUser" />
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="confirmDialog">确 定</el-button>
-      </span>
+      <register-user ref="registerUser" @handleClose="handleClose"/>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import RegisterUser from './components/registerUser'
-import { register } from '@/api/user'
 
 export default {
   name: 'Login',
@@ -99,8 +92,8 @@ export default {
     return {
       dialogVisible: false,
       loginForm: {
-        username: 'zradmin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
@@ -121,13 +114,6 @@ export default {
   methods: {
     handleClose() {
       this.dialogVisible = false
-    },
-    confirmDialog() {
-      const formData = this.$refs.registerUser.formData
-      register(formData).then(response => {
-        this.$message.success(response)
-        this.handleClose()
-      })
     },
     showPwd() {
       if (this.passwordType === 'password') {

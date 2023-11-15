@@ -3,10 +3,10 @@
     <el-button type="primary" @click="handleAddRole">新建</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="角色" prop="roleKey"/>
+      <el-table-column align="center" label="角色标识" prop="roleKey"/>
       <el-table-column align="center" label="角色名称" prop="roleName"/>
-      <el-table-column align="header-center" label="状态" prop="status"/>
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="描述" prop="remark"/>
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
@@ -16,15 +16,18 @@
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑':'新建'">
       <el-form :model="role" label-width="80px" label-position="right">
+        <el-form-item label="角色标识">
+          <el-input v-model="role.roleKey" placeholder="角色标识"/>
+        </el-form-item>
         <el-form-item label="角色名称">
           <el-input v-model="role.name" placeholder="角色名称"/>
         </el-form-item>
         <el-form-item label="描述">
           <el-input
-            v-model="role.description"
+            v-model="role.remark"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
-            placeholder="Role Description"
+            placeholder="Role remark"
           />
         </el-form-item>
         <el-form-item label="菜单权限">
@@ -54,9 +57,9 @@ import { addRole, deleteRole, getRoles, updateRole } from '@/api/role'
 import { getRouters } from '@/api/menu'
 
 const defaultRole = {
-  key: '',
+  roleKey: '',
   name: '',
-  description: '',
+  remark: '',
   routes: []
 }
 
@@ -81,7 +84,6 @@ export default {
     }
   },
   created() {
-    // Mock: get all routes and roles list from server
     this.getRoutes()
     this.getRoles()
   },
@@ -93,32 +95,24 @@ export default {
     },
     async getRoles() {
       const res = await getRoles()
-      console.info(res, 111)
       this.rolesList = res.data
     },
-
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
-
       for (let route of routes) {
         // skip some route
         if (route.hidden) {
           continue
         }
-
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
         }
-
         const data = {
           path: path.resolve(basePath, route.path),
           title: route.meta && route.meta.title
-
         }
-
         // recursive child routes
         if (route.children) {
           data.children = this.generateRoutes(route.children, data.path)
@@ -161,17 +155,17 @@ export default {
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the role?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确认要删除此角色吗?', '警告', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          await deleteRole(row.key)
-          this.rolesList.splice($index, 1)
+          await deleteRole(row.roleId)
+          await this.getRoles()
           this.$message({
             type: 'success',
-            message: 'Delete succed!'
+            message: '删除成功!'
           })
         })
         .catch(err => {
@@ -197,10 +191,8 @@ export default {
     },
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-
       const checkedKeys = this.$refs.tree.getCheckedKeys()
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
-
       if (isEdit) {
         await updateRole(this.role.key, this.role)
         for (let index = 0; index < this.rolesList.length; index++) {
@@ -210,20 +202,19 @@ export default {
           }
         }
       } else {
-        const { data } = await addRole(this.role)
-        this.role.key = data.key
-        this.rolesList.push(this.role)
+        await addRole(this.role)
+        await this.getRoles()
       }
 
-      const { description, key, name } = this.role
+      const { remark, roleKey, name } = this.role
       this.dialogVisible = false
       this.$notify({
         title: 'Success',
         dangerouslyUseHTMLString: true,
         message: `
-            <div>Role Key: ${key}</div>
-            <div>Role Name: ${name}</div>
-            <div>Description: ${description}</div>
+            <div>角色标识: ${roleKey}</div>
+            <div>角色名称: ${name}</div>
+            <div>描述: ${remark}</div>
           `,
         type: 'success'
       })

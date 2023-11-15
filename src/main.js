@@ -1,22 +1,25 @@
 import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
 import '@/styles/index.scss' // global css
-
 import App from './App'
 import store from './store'
 import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+import { parseTime } from '@/utils/comm'
 
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+import VueCropper from 'vue-cropper'
+
 Vue.use(VXETable)
+
+Vue.use(VueCropper)
 
 /**
  * If you don't want to use mock-server
@@ -35,6 +38,9 @@ if (process.env.NODE_ENV === 'production') {
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+
+// 全局方法挂载
+Vue.prototype.parseTime = parseTime
 
 new Vue({
   el: '#app',
