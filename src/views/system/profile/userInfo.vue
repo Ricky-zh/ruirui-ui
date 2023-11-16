@@ -62,7 +62,7 @@ export default {
           updateUserProfile(this.userInfo).then(async() => {
             this.$message.success('修改成功')
             await store.dispatch('user/getInfo')
-            location.reload()
+            this.$emit('refreshData')
           })
         }
       })

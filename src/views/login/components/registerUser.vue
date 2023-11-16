@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { register } from '@/api/user'
+import { register } from '@/api/system'
 
 export default {
   // 更换名称

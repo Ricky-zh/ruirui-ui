@@ -1,5 +1,8 @@
 import request from '@/utils/request'
 
+/**
+ * 角色列表
+ */
 export function getRoles() {
   return request({
     url: '/role/roles',
@@ -7,6 +10,9 @@ export function getRoles() {
   })
 }
 
+/**
+ * 新增角色
+ */
 export function addRole(data) {
   return request({
     url: '/role/addRole',
@@ -15,6 +21,9 @@ export function addRole(data) {
   })
 }
 
+/**
+ * 更新角色
+ */
 export function updateRole(id, data) {
   return request({
     url: `/vue-element-admin/role/${id}`,
@@ -23,6 +32,9 @@ export function updateRole(id, data) {
   })
 }
 
+/**
+ * 删除角色
+ */
 export function deleteRole(id) {
   return request({
     url: `/role/delete/${id}`,
